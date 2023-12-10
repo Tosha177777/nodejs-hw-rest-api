@@ -1,25 +1,80 @@
-const express = require('express')
+const express = require("express");
+const {
+  listContacts,
+  addContact,
+  removeContact,
+  getContactById,
+  updateContact,
+} = require("../../models/contacts");
+const { createContactValidator } = require("../../validator/validation");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/", async (req, res, next) => {
+  try {
+    const contacts = await listContacts();
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+    res.json(contacts);
+  } catch (error) {
+    res.send(error);
+  }
+});
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/:contactId", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+    const contact = await getContactById(contactId);
+    res.json(contact);
+  } catch (error) {
+    res.status(404).json(error.error);
+  }
+});
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.post("/", async (req, res, next) => {
+  try {
+    const { error } = createContactValidator(req.body);
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+    if (error) {
+      res.status(400).json({ message: "Missing fields" });
+      return;
+    }
 
-module.exports = router
+    const newContact = await addContact(req.body);
+    res.status(201).json(newContact);
+  } catch (error) {
+    res.status(400).json({ message: "missing required name field" });
+  }
+});
+
+router.delete("/:contactId", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+    await removeContact(contactId);
+    res.status(200).json({
+      message: `Contact with ID: ${contactId} was successfully deleted`,
+    });
+  } catch (error) {
+    res.status(404).json(error.error);
+  }
+});
+
+router.put("/:contactId", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+
+    const { value, error } = createContactValidator(req.body);
+
+    if (error) {
+      res.status(400).json({ message: "Missing fields" });
+      return;
+    }
+
+    const updatedContact = await updateContact(contactId, value);
+
+    res.status(200).json(updatedContact);
+  } catch (error) {
+    res.status(404).json({ message: "Not found" });
+  }
+});
+
+module.exports = router;
