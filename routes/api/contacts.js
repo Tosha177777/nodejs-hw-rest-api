@@ -6,7 +6,7 @@ const {
   getContactById,
   updateContact,
   updateStatusContact,
-} = require("../../models/contacts");
+} = require("../../controllers/contacts");
 const { createContactValidator } = require("../../validator/validation");
 
 const router = express.Router();
