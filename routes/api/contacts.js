@@ -5,7 +5,8 @@ const {
   removeContact,
   getContactById,
   updateContact,
-} = require("../../models/contacts");
+  updateStatusContact,
+} = require("../../controllers/contacts");
 const { createContactValidator } = require("../../validator/validation");
 
 const router = express.Router();
@@ -26,20 +27,20 @@ router.get("/:contactId", async (req, res, next) => {
     const contact = await getContactById(contactId);
     res.json(contact);
   } catch (error) {
-    res.status(404).json(error.error);
+    res.status(404).json({ error: `Contact doesn't exist` });
   }
 });
 
 router.post("/", async (req, res, next) => {
   try {
-    const { error } = createContactValidator(req.body);
+    const { value, error } = createContactValidator(req.body);
 
     if (error) {
       res.status(400).json({ message: "Missing fields" });
       return;
     }
 
-    const newContact = await addContact(req.body);
+    const newContact = await addContact(value);
     res.status(201).json(newContact);
   } catch (error) {
     res.status(400).json({ message: "missing required name field" });
@@ -54,14 +55,13 @@ router.delete("/:contactId", async (req, res, next) => {
       message: `Contact with ID: ${contactId} was successfully deleted`,
     });
   } catch (error) {
-    res.status(404).json(error.error);
+    res.status(404).json({ error: `Contact doesn't exist` });
   }
 });
 
 router.put("/:contactId", async (req, res, next) => {
   try {
     const { contactId } = req.params;
-
     const { value, error } = createContactValidator(req.body);
 
     if (error) {
@@ -70,6 +70,20 @@ router.put("/:contactId", async (req, res, next) => {
     }
 
     const updatedContact = await updateContact(contactId, value);
+
+    res.status(200).json(updatedContact);
+  } catch (error) {
+    res.status(404).json({ message: "Not found" });
+  }
+});
+
+router.patch("/:contactId/favorite", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+
+    const { favorite } = req.body;
+
+    const updatedContact = await updateStatusContact(contactId, { favorite });
 
     res.status(200).json(updatedContact);
   } catch (error) {
