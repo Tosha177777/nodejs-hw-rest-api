@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const contactsRouter = require("./routes/api/contacts");
 const authRouter = require("./routes/api/authRoutes");
+const { HttpError } = require("./utils");
 
 const app = express();
 
@@ -22,7 +23,14 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
+  if (err instanceof HttpError) {
+    res.status(err.status).json({
+      error: err.message,
+    });
+  } else {
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
 });
-
 module.exports = app;

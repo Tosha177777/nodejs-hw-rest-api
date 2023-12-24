@@ -11,8 +11,10 @@ router.post(
   authController.signupController
 );
 
-// router.post("/users/login", authController.login);
-
-// router.post("/users/login");
+router.post(
+  "/users/login",
+  authMiddleware.checkLoginUserData,
+  authController.loginController
+);
 
 module.exports = router;

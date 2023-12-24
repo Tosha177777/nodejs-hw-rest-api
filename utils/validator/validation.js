@@ -17,3 +17,11 @@ exports.signupUserValidator = (data) =>
       password: Joi.string().required(),
     })
     .validate(data);
+
+exports.loginValidator = (data) =>
+  Joi.object()
+    .keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    })
+    .validate(data);

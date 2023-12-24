@@ -1,19 +1,27 @@
-const { catchAsync } = require("../utils");
 const { userService } = require("../srvice");
+const { catchAsync } = require("../utils");
 
-exports.signupController = catchAsync(async (req, res, next) => {
-  const { user, token } = userService.signup(req.body);
-
-  // const salt = await bcrypt.genSalt(10);
-  // const passwordHash = await bcrypt.hash(user.password, salt);
-  // console.log("passwordHash: ", passwordHash);
+exports.signupController = catchAsync(async (req, res) => {
+  const { newUser } = await userService.signup(req.body);
+  const { email, subscription } = newUser;
 
   res.status(201).json({
     user: {
-      email: user.email,
-      token,
+      email,
+      subscription,
     },
   });
 });
 
-exports.loginController = catchAsync(async (req, res, next) => {});
+exports.loginController = catchAsync(async (req, res) => {
+  const { user, token } = await userService.login(req.body);
+  const { email, subscription } = user;
+
+  res.status(200).json({
+    token,
+    user: {
+      email,
+      subscription,
+    },
+  });
+});

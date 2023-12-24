@@ -1,9 +1,9 @@
 const { userService } = require("../srvice");
 const { catchAsync, HttpError } = require("../utils");
-const { signupUserValidator } = require("../utils/validator/validation");
+const { validator } = require("../utils/validator");
 
 exports.checkSignUpData = catchAsync(async (req, res, next) => {
-  const { value, error } = signupUserValidator(req.body);
+  const { value, error } = validator.signupUserValidator(req.body);
 
   if (error) throw new HttpError(400, "Invalid user data", error);
 
@@ -13,3 +13,13 @@ exports.checkSignUpData = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.checkLoginUserData = (req, res, next) => {
+  const { value, error } = validator.loginValidator(req.body);
+
+  if (error) throw new HttpError(400, "Bad Request", error);
+
+  req.body = value;
+
+  next();
+};
