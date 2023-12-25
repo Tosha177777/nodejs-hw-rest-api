@@ -1,6 +1,6 @@
 const User = require("../models/usersSchema");
 const { userService } = require("../srvice");
-const { catchAsync } = require("../utils");
+const { catchAsync, HttpError } = require("../utils");
 
 exports.signupController = catchAsync(async (req, res) => {
   const { newUser, token } = await userService.signup(req.body);
@@ -30,11 +30,14 @@ exports.loginController = catchAsync(async (req, res) => {
 
 exports.logoutController = async (req, res) => {
   const { _id } = req.user;
-  console.log("_id : ", _id);
 
-  await User.findByIdAndUpdate(_id, { token: "" });
+  if (!_id) {
+    throw new HttpError(401, "Not authorized");
+  }
 
-  res.status(204).json({ msg: "bye" });
+  await User.findByIdAndUpdate(_id, { token: null });
+
+  res.status(204).end();
 };
 
 exports.current = (req, res) => {

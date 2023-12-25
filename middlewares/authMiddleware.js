@@ -37,7 +37,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   const currentUser = await getOneUser(userId);
 
-  if (!currentUser) throw new HttpError(401, "Not authorized");
+  if (!currentUser || !currentUser.token)
+    throw new HttpError(401, "Not authorized");
 
   req.user = currentUser;
 
