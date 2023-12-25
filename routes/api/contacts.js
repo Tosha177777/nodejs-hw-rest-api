@@ -8,8 +8,11 @@ const {
   updateStatusContact,
 } = require("../../controllers/contacts");
 const { createContactValidator } = require("../../utils/validator/validation");
+const { authMiddleware } = require("../../middlewares");
 
 const router = express.Router();
+
+router.use(authMiddleware.protect);
 
 router.get("/", async (req, res, next) => {
   try {

@@ -17,6 +17,8 @@ exports.signup = async (data) => {
 
   const token = signToken(newUser.id);
 
+  await User.findByIdAndUpdate(newUser.id, { token });
+
   return { newUser, token };
 };
 
@@ -37,5 +39,9 @@ exports.login = async ({ email, password }) => {
 
   const token = signToken(user.id);
 
+  await User.findByIdAndUpdate(user.id, { token });
+
   return { user, token };
 };
+
+exports.getOneUser = (id) => User.findById(id);
