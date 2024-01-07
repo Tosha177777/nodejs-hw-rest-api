@@ -1,4 +1,4 @@
-const { userService } = require("../srvice");
+const { userService, ImageService } = require("../srvice");
 const { checkToken } = require("../srvice/jwtService");
 const { getOneUser } = require("../srvice/userService");
 const { catchAsync, HttpError } = require("../utils");
@@ -44,3 +44,16 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cbk) => {
+//     cbk(null, "public/avatars");
+//   },
+//   filename: (req, file, cbk) => {
+//     const extension = file.mimetype.split("/")[1];
+
+//     cbk(null, `${req.user._id}-${uuid()}.${extension}`);
+//   },
+// });
+
+exports.uploadNewAvatar = ImageService.imageUploadMiddleware("avatar");

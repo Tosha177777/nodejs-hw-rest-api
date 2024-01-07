@@ -1,6 +1,7 @@
 const { signToken } = require("./jwtService");
 const User = require("../models/usersSchema");
 const { HttpError } = require("../utils");
+const ImageService = require("./imageService");
 
 exports.checkUserExist = async (data) => {
   const userExist = await User.exists(data);
@@ -45,3 +46,19 @@ exports.login = async ({ email, password }) => {
 };
 
 exports.getOneUser = (id) => User.findById(id);
+
+exports.updateMe = async (userData, user, file) => {
+  if (file) {
+    user.avatarURL = await ImageService.saveImg(
+      file,
+      { maxFileSize: 2 },
+      user.id
+    );
+  }
+
+  Object.keys(userData).forEach((key) => {
+    user[key] = userData[key];
+  });
+
+  return user.save();
+};

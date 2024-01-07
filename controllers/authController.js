@@ -49,3 +49,11 @@ exports.current = (req, res) => {
     },
   });
 };
+
+exports.updateAvatarController = catchAsync(async (req, res) => {
+  const updatedUser = await userService.updateMe(req.body, req.user, req.file);
+
+  res.status(200).json({
+    avatarURL: updatedUser.avatarURL,
+  });
+});
