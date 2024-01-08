@@ -48,6 +48,8 @@ class ImageService {
 
     await fs.move(tmpPath, publicPath, { overwrite: true });
 
+    await fs.remove(path.join(process.cwd(), "tmp"));
+
     return `/avatars/${userId}_avatar.jpeg`;
   }
 }
