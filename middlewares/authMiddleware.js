@@ -1,3 +1,4 @@
+// const User = require("../models/usersSchema");
 const { userService, ImageService } = require("../srvice");
 const { checkToken } = require("../srvice/jwtService");
 const { getOneUser } = require("../srvice/userService");
@@ -45,15 +46,13 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cbk) => {
-//     cbk(null, "public/avatars");
-//   },
-//   filename: (req, file, cbk) => {
-//     const extension = file.mimetype.split("/")[1];
+// exports.checkUserVerify = catchAsync(async (req, res, next) => {
+//   const currUser = await User.findOne({ verificationToken: req.params.verificationToken });
+//   console.log("req.params: ", req.params);
+//   console.log("currUser: ", currUser);
 
-//     cbk(null, `${req.user._id}-${uuid()}.${extension}`);
-//   },
+//   if (!currUser) throw new HttpError(404, "Not Found");
+//   next();
 // });
 
 exports.uploadNewAvatar = ImageService.imageUploadMiddleware("avatar");

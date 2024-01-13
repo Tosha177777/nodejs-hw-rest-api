@@ -17,6 +17,11 @@ exports.signupController = catchAsync(async (req, res) => {
 
 exports.loginController = catchAsync(async (req, res) => {
   const { user, token } = await userService.login(req.body);
+  // -----------
+
+  // if user is not verified, throw new HttpErr
+
+  // ---------
   const { email, subscription } = user;
 
   res.status(200).json({
@@ -25,6 +30,12 @@ exports.loginController = catchAsync(async (req, res) => {
       email,
       subscription,
     },
+  });
+});
+
+exports.validationController = catchAsync(async (req, res) => {
+  res.status(200).json({
+    message: "Verification successful",
   });
 });
 

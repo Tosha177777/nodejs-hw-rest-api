@@ -14,11 +14,15 @@ exports.checkUserExist = async (data) => {
 exports.signup = async (data) => {
   const newUser = await User.create(data);
 
+  // creating verify token
+
+  const verificationToken = newUser.generateVerifyToken();
+
   newUser.password = undefined;
 
   const token = signToken(newUser.id);
 
-  await User.findByIdAndUpdate(newUser.id, { token });
+  await User.findByIdAndUpdate(newUser.id, { token, verificationToken });
 
   return { newUser, token };
 };

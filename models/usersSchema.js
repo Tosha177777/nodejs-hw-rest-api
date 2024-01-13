@@ -1,6 +1,8 @@
 const { model, Schema } = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+// const { func } = require("joi");
+const uuid = require("uuid").v4;
 
 const userSchema = new Schema({
   password: {
@@ -23,6 +25,14 @@ const userSchema = new Schema({
     ref: "user",
   },
   token: String,
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+    required: [true, "Verify token is required"],
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -42,6 +52,17 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.checkHash = (pass, hash) => bcrypt.compare(pass, hash);
+
+userSchema.methods.generateVerifyToken = function () {
+  const verToken = uuid();
+
+  this.verificationToken = crypto
+    .createHash("sha256")
+    .update(verToken)
+    .digest("hex");
+
+  return verToken;
+};
 
 const User = model("User", userSchema);
 
