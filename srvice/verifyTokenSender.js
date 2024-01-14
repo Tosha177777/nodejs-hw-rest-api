@@ -22,9 +22,8 @@ const verifySender = async (req, token, email) => {
     };
 
     await transport.sendMail(emailConfig);
-  } catch (error) {
-    console.log("error: ", error.message);
-    throw new HttpError(error.message);
+  } catch (err) {
+    throw new HttpError(err.status, err.message);
   }
 };
 
