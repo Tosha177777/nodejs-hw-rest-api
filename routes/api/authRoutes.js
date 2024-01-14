@@ -17,11 +17,17 @@ router.post(
   authController.loginController
 );
 
-// router.get(
-//   "/users/verify/:verificationToken",
-//   // authMiddleware.checkUserVerify,
-//   authController.validationController
-// );
+router.get(
+  "/users/verify/:verificationToken",
+  authMiddleware.checkUserVerify,
+  authController.verifyController
+);
+
+router.post(
+  "/users/verify",
+  authMiddleware.checkUserMail,
+  authController.sendVerifyToken
+);
 
 router.use(authMiddleware.protect);
 

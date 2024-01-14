@@ -1,4 +1,4 @@
-// const User = require("../models/usersSchema");
+const User = require("../models/usersSchema");
 const { userService, ImageService } = require("../srvice");
 const { checkToken } = require("../srvice/jwtService");
 const { getOneUser } = require("../srvice/userService");
@@ -27,6 +27,16 @@ exports.checkLoginUserData = (req, res, next) => {
   next();
 };
 
+exports.checkUserMail = (req, res, next) => {
+  const { value, error } = validator.checkMail(req.body);
+
+  if (error) throw new HttpError(400, "missing required field email");
+
+  req.body = value;
+
+  next();
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   const token =
     req.headers.authorization?.startsWith("Bearer ") &&
@@ -38,7 +48,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   const currentUser = await getOneUser(userId);
 
-  if (!currentUser || !currentUser.token)
+  if (!currentUser || !currentUser.token || !currentUser.verify)
     throw new HttpError(401, "Not authorized");
 
   req.user = currentUser;
@@ -46,13 +56,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// exports.checkUserVerify = catchAsync(async (req, res, next) => {
-//   const currUser = await User.findOne({ verificationToken: req.params.verificationToken });
-//   console.log("req.params: ", req.params);
-//   console.log("currUser: ", currUser);
+exports.checkUserVerify = catchAsync(async (req, res, next) => {
+  const currUser = await User.findOne({
+    verificationToken: req.params.verificationToken,
+  });
 
-//   if (!currUser) throw new HttpError(404, "Not Found");
-//   next();
-// });
+  if (!currUser) throw new HttpError(404, "Not Found");
+  req.user = currUser;
+
+  next();
+});
 
 exports.uploadNewAvatar = ImageService.imageUploadMiddleware("avatar");

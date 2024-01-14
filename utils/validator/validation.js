@@ -25,3 +25,10 @@ exports.loginValidator = (data) =>
       password: Joi.string().required(),
     })
     .validate(data);
+
+exports.checkMail = (data) =>
+  Joi.object()
+    .keys({
+      email: Joi.string().email().required(),
+    })
+    .validate(data);

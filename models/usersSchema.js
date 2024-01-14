@@ -61,6 +61,8 @@ userSchema.methods.generateVerifyToken = function () {
     .update(verToken)
     .digest("hex");
 
+  this.verify = true;
+
   return verToken;
 };
 

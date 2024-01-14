@@ -1,10 +1,38 @@
 const User = require("../models/usersSchema");
-const { userService } = require("../srvice");
+const { userService, verifySender } = require("../srvice");
 const { catchAsync, HttpError } = require("../utils");
 
 exports.signupController = catchAsync(async (req, res) => {
   const { newUser, token } = await userService.signup(req.body);
-  const { email, subscription } = newUser;
+  const { email, subscription, verificationToken } = newUser;
+
+  // try {
+  //   const verURL = `${req.protocol}://${req.get(
+  //     "host"
+  //   )}/users/verify/${verificationToken}`;
+
+  //   const transport = nodemailer.createTransport({
+  //     host: "sandbox.smtp.mailtrap.io",
+  //     port: 2525,
+  //     auth: {
+  //       user: process.env.TRANSPORT_USER,
+  //       pass: process.env.TRANSPORT_PASS,
+  //     },
+  //   });
+  //   const emailConfig = {
+  //     from: "Account verification <service@example.com>",
+  //     to: email,
+  //     subject: `Account verification`,
+  //     html: `<p>Please, verify your account</p> <a>${verURL}</a>`,
+  //     text: "Hello from GoIT",
+  //   };
+
+  //   await transport.sendMail(emailConfig);
+  // } catch (error) {
+  //   throw new HttpError(error.status, error.message);
+  // }
+
+  await verifySender(req, verificationToken, email);
 
   res.status(201).json({
     token,
@@ -21,6 +49,11 @@ exports.loginController = catchAsync(async (req, res) => {
 
   // if user is not verified, throw new HttpErr
 
+  if (!user.verify)
+    throw new HttpError(
+      400,
+      "Not allowed to log in, please, verify your account"
+    );
   // ---------
   const { email, subscription } = user;
 
@@ -33,9 +66,33 @@ exports.loginController = catchAsync(async (req, res) => {
   });
 });
 
-exports.validationController = catchAsync(async (req, res) => {
+exports.verifyController = catchAsync(async (req, res) => {
+  const { verificationToken } = req.user;
+
+  await User.findOneAndUpdate(
+    { verificationToken },
+    { verificationToken: null, verify: true },
+    { new: true }
+  );
+
   res.status(200).json({
     message: "Verification successful",
+  });
+});
+
+exports.sendVerifyToken = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  const { verificationToken } = user;
+
+  if (user.verify) {
+    throw new HttpError(400, "Verification has already been passed");
+  }
+
+  await verifySender(req, verificationToken, email);
+
+  res.status(200).json({
+    message: "Verification email sent",
   });
 });
 
@@ -53,6 +110,7 @@ exports.logoutController = async (req, res) => {
 
 exports.current = (req, res) => {
   const { email, subscription } = req.user;
+
   res.status(200).json({
     user: {
       email,
