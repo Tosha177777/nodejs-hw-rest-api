@@ -6,32 +6,6 @@ exports.signupController = catchAsync(async (req, res) => {
   const { newUser, token } = await userService.signup(req.body);
   const { email, subscription, verificationToken } = newUser;
 
-  // try {
-  //   const verURL = `${req.protocol}://${req.get(
-  //     "host"
-  //   )}/users/verify/${verificationToken}`;
-
-  //   const transport = nodemailer.createTransport({
-  //     host: "sandbox.smtp.mailtrap.io",
-  //     port: 2525,
-  //     auth: {
-  //       user: process.env.TRANSPORT_USER,
-  //       pass: process.env.TRANSPORT_PASS,
-  //     },
-  //   });
-  //   const emailConfig = {
-  //     from: "Account verification <service@example.com>",
-  //     to: email,
-  //     subject: `Account verification`,
-  //     html: `<p>Please, verify your account</p> <a>${verURL}</a>`,
-  //     text: "Hello from GoIT",
-  //   };
-
-  //   await transport.sendMail(emailConfig);
-  // } catch (error) {
-  //   throw new HttpError(error.status, error.message);
-  // }
-
   await verifySender(req, verificationToken, email);
 
   res.status(201).json({
