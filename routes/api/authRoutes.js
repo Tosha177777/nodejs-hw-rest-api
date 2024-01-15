@@ -17,6 +17,18 @@ router.post(
   authController.loginController
 );
 
+router.get(
+  "/users/verify/:verificationToken",
+  authMiddleware.checkUserVerify,
+  authController.verifyController
+);
+
+router.post(
+  "/users/verify",
+  authMiddleware.checkUserMail,
+  authController.sendVerifyToken
+);
+
 router.use(authMiddleware.protect);
 
 router.post("/users/logout", authController.logoutController);

@@ -1,0 +1,30 @@
+const nodemailer = require("nodemailer");
+const { HttpError } = require("../utils");
+
+const verifySender = async (req, token, email) => {
+  try {
+    const verURL = `${req.protocol}://${req.get("host")}/users/verify/${token}`;
+
+    const transport = nodemailer.createTransport({
+      host: "sandbox.smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+        user: process.env.TRANSPORT_USER,
+        pass: process.env.TRANSPORT_PASS,
+      },
+    });
+    const emailConfig = {
+      from: "Account verification <service@example.com>",
+      to: email,
+      subject: `Account verification`,
+      html: `<p>Please, verify your account</p> <a>${verURL}</a>`,
+      text: "Hello from GoIT",
+    };
+
+    await transport.sendMail(emailConfig);
+  } catch (err) {
+    throw new HttpError(err.status, err.message);
+  }
+};
+
+module.exports = verifySender;

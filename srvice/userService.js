@@ -1,3 +1,5 @@
+const uuid = require("uuid").v4;
+
 const { signToken } = require("./jwtService");
 const User = require("../models/usersSchema");
 const { HttpError } = require("../utils");
@@ -12,7 +14,9 @@ exports.checkUserExist = async (data) => {
 };
 
 exports.signup = async (data) => {
-  const newUser = await User.create(data);
+  const verificationToken = uuid();
+
+  const newUser = await User.create({ ...data, verificationToken });
 
   newUser.password = undefined;
 
